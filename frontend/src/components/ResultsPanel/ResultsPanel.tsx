@@ -23,6 +23,7 @@ function MetricCard({ label, value, unit, colorClass = 'text-white' }: MetricCar
 
 export function ResultsPanel() {
   const cascadeResult = useSpectraStore((s) => s.cascadeResult)
+  const calcError = useSpectraStore((s) => s.calcError)
   const r = cascadeResult
 
   return (
@@ -30,6 +31,12 @@ export function ResultsPanel() {
       <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
         Cascade Results
       </p>
+
+      {calcError && (
+        <div className="flex items-start gap-2 text-xs text-red-400 bg-red-400/10 rounded p-2">
+          <span>⚠</span><span>{calcError}</span>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-2">
         <MetricCard

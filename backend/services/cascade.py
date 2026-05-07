@@ -108,6 +108,16 @@ def receiver_sensitivity(
     return noise_floor_dbm + cascaded_nf_db
 
 
+def _warn_suspicious_params(stages: list[RFComponent]) -> None:
+    import logging
+    logger = logging.getLogger(__name__)
+    for s in stages:
+        if s.nf_db < 0:
+            logger.warning("Stage '%s': nf_db=%.1f is negative (clamped to 0)", s.name, s.nf_db)
+        if not (-60 <= s.gain_db <= 60):
+            logger.warning("Stage '%s': gain_db=%.1f outside typical range [-60, 60]", s.name, s.gain_db)
+
+
 def calculate_chain(request: ChainCalculationRequest) -> CascadeResult:
     """Full cascade calculation entry point."""
     stages = request.stages
@@ -119,6 +129,8 @@ def calculate_chain(request: ChainCalculationRequest) -> CascadeResult:
         raise ValueError("bandwidth_hz must be positive")
     if params.temperature_k <= 0:
         raise ValueError("temperature_k must be positive")
+
+    _warn_suspicious_params(stages)
 
     nf_db = cascaded_nf(stages)
     gain_db = cascaded_gain(stages)

@@ -25,8 +25,10 @@ interface SpectraStore {
   // UI state (not persisted)
   isExtracting: boolean
   extractionError: string | null
+  calcError: string | null
   setExtracting: (value: boolean) => void
   setExtractionError: (error: string | null) => void
+  setCalcError: (error: string | null) => void
 }
 
 export const useSpectraStore = create<SpectraStore>()(
@@ -89,8 +91,10 @@ export const useSpectraStore = create<SpectraStore>()(
 
       isExtracting: false,
       extractionError: null,
+      calcError: null,
       setExtracting: (value) => set({ isExtracting: value }),
       setExtractionError: (error) => set({ extractionError: error }),
+      setCalcError: (error) => set({ calcError: error }),
     }),
     {
       name: 'spectra-v1',

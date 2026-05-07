@@ -11,12 +11,14 @@ export default function App() {
   const components = useSpectraStore((s) => s.components)
   const systemParams = useSpectraStore((s) => s.systemParams)
   const setCascadeResult = useSpectraStore((s) => s.setCascadeResult)
+  const setCalcError = useSpectraStore((s) => s.setCalcError)
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (chain.length === 0) {
       setCascadeResult(null)
+      setCalcError(null)
       return
     }
 
@@ -28,8 +30,9 @@ export default function App() {
       try {
         const result = await calculateChain({ stages, system_params: systemParams })
         setCascadeResult(result)
+        setCalcError(null)
       } catch {
-        // Keep stale results on error
+        setCalcError('Calculation failed — check backend connection')
       }
     }, 50)
 
