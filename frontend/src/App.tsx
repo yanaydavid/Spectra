@@ -7,6 +7,7 @@ import { ChainDiagram } from './components/ChainDiagram/ChainDiagram'
 import { ResultsPanel } from './components/ResultsPanel/ResultsPanel'
 import { MatchingNetworkPanel } from './components/MatchingNetwork/MatchingNetworkPanel'
 import { StabilityPanel } from './components/Stability/StabilityPanel'
+import { MonteCarloPanel } from './components/MonteCarlo/MonteCarloPanel'
 
 export default function App() {
   const chain = useSpectraStore((s) => s.chain)
@@ -69,6 +70,7 @@ export default function App() {
         <ResultsPanel />
         <MatchingNetworkPanel />
         <StabilityPanel />
+        <MonteCarloPanel />
       </aside>
     </div>
   )
