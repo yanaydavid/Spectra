@@ -6,6 +6,7 @@ import { NoiseBudget } from './NoiseBudget'
 import { LinkBudgetPanel } from './LinkBudgetPanel'
 import { PresetsPanel } from '../shared/PresetsPanel'
 import { generateReport } from '../../utils/generateReport'
+import { DynamicRangePanel } from './DynamicRangePanel'
 
 interface MetricCardProps {
   label: string
@@ -112,6 +113,13 @@ export function ResultsPanel() {
           colorClass="text-violet-400"
         />
       </div>
+
+      {r && (
+        <DynamicRangePanel
+          iip3_dbm={r.cascaded_iip3_dbm}
+          sensitivity_dbm={r.sensitivity_dbm}
+        />
+      )}
 
       {r && r.per_stage.length > 1 && (
         <div>

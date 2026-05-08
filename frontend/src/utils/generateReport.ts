@@ -125,6 +125,13 @@ export function generateReport(
   const chainChartSvg = buildChainChartSvg(r.per_stage)
   const hasIip3 = r.per_stage.some((s) => s.cumulative_iip3_dbm != null)
 
+  // Dynamic range calculations
+  const noiseFloor  = r.sensitivity_dbm
+  const sfdr        = (2 / 3) * (r.cascaded_iip3_dbm - noiseFloor)
+  const idr         = r.cascaded_iip3_dbm - noiseFloor
+  const p1db_in     = r.cascaded_iip3_dbm - 9.6
+  const bdr         = p1db_in - noiseFloor
+
   const stageRows = r.per_stage
     .map((s) => {
       const comp = stages.find((c) => c.id === s.component_id) ?? stages[s.stage_index]
@@ -283,6 +290,35 @@ export function generateReport(
       <div class="value">${db(r.sensitivity_dbm)}<span class="unit">dBm</span></div>
     </div>
   </div>
+</div>
+
+<!-- Dynamic Range -->
+<div class="section">
+  <h2>Dynamic Range</h2>
+  <div class="metrics">
+    <div class="metric-card" style="border-color:#fecdd3">
+      <div class="label">SFDR</div>
+      <div class="value" style="color:#f43f5e">${sfdr.toFixed(1)}<span class="unit">dB</span></div>
+    </div>
+    <div class="metric-card" style="border-color:#fed7aa">
+      <div class="label">Instantaneous DR</div>
+      <div class="value" style="color:#f97316">${idr.toFixed(1)}<span class="unit">dB</span></div>
+    </div>
+    <div class="metric-card" style="border-color:#fef08a">
+      <div class="label">Blocking DR</div>
+      <div class="value" style="color:#eab308">${bdr.toFixed(1)}<span class="unit">dB</span></div>
+    </div>
+    <div class="metric-card">
+      <div class="label">P1dB (input)</div>
+      <div class="value" style="color:#6b7280">${p1db_in.toFixed(1)}<span class="unit">dBm</span></div>
+    </div>
+  </div>
+  <p style="font-size:10px;color:#94a3b8;margin-top:12px">
+    SFDR = (2/3)·(IIP3 − Noise Floor) &nbsp;|&nbsp;
+    IDR = IIP3 − Noise Floor &nbsp;|&nbsp;
+    BDR = P1dB(in) − Noise Floor &nbsp;|&nbsp;
+    P1dB(in) ≈ IIP3 − 9.6 dB
+  </p>
 </div>
 
 <!-- Charts -->
