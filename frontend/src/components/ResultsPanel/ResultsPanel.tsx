@@ -5,6 +5,7 @@ import { ChainChart } from './ChainChart'
 import { NoiseBudget } from './NoiseBudget'
 import { LinkBudgetPanel } from './LinkBudgetPanel'
 import { PresetsPanel } from '../shared/PresetsPanel'
+import { generateReport } from '../../utils/generateReport'
 
 interface MetricCardProps {
   label: string
@@ -58,13 +59,26 @@ export function ResultsPanel() {
   const cascadeResult = useSpectraStore((s) => s.cascadeResult)
   const calcError = useSpectraStore((s) => s.calcError)
   const freqGhz = useSpectraStore((s) => s.systemParams.frequency_ghz)
+  const systemParams = useSpectraStore((s) => s.systemParams)
+  const chain = useSpectraStore((s) => s.chain)
+  const components = useSpectraStore((s) => s.components)
   const r = cascadeResult
 
   return (
     <div className="p-4 space-y-4">
-      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-        Cascade Results
-      </p>
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          Cascade Results
+        </p>
+        {r && chain.length > 0 && (
+          <button
+            onClick={() => generateReport(chain, components, systemParams, r)}
+            className="text-[10px] px-2 py-1 bg-violet-700 hover:bg-violet-600 text-white rounded transition-colors flex items-center gap-1"
+          >
+            <span>↓</span> Design Report
+          </button>
+        )}
+      </div>
 
       {calcError && (
         <div className="flex items-start gap-2 text-xs text-red-400 bg-red-400/10 rounded p-2">
