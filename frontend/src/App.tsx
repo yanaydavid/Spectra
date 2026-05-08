@@ -6,6 +6,7 @@ import { ComponentLibrary } from './components/ComponentLibrary/ComponentLibrary
 import { ChainDiagram } from './components/ChainDiagram/ChainDiagram'
 import { ResultsPanel } from './components/ResultsPanel/ResultsPanel'
 import { MatchingNetworkPanel } from './components/MatchingNetwork/MatchingNetworkPanel'
+import { StabilityPanel } from './components/Stability/StabilityPanel'
 
 export default function App() {
   const chain = useSpectraStore((s) => s.chain)
@@ -67,6 +68,7 @@ export default function App() {
       <aside className="w-72 border-l border-gray-800 overflow-y-auto shrink-0">
         <ResultsPanel />
         <MatchingNetworkPanel />
+        <StabilityPanel />
       </aside>
     </div>
   )
