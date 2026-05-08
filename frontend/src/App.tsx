@@ -9,6 +9,7 @@ import { MatchingNetworkPanel } from './components/MatchingNetwork/MatchingNetwo
 import { StabilityPanel } from './components/Stability/StabilityPanel'
 import { MonteCarloPanel } from './components/MonteCarlo/MonteCarloPanel'
 import { FrequencySweepPanel } from './components/FrequencySweep/FrequencySweepPanel'
+import { ComparisonPanel } from './components/ChainComparison/ComparisonPanel'
 
 export default function App() {
   const chain = useSpectraStore((s) => s.chain)
@@ -73,6 +74,7 @@ export default function App() {
         <StabilityPanel />
         <MonteCarloPanel />
         <FrequencySweepPanel />
+        <ComparisonPanel />
       </aside>
     </div>
   )
