@@ -5,6 +5,7 @@ import { UploadPanel } from './components/UploadPanel/UploadPanel'
 import { ComponentLibrary } from './components/ComponentLibrary/ComponentLibrary'
 import { ChainDiagram } from './components/ChainDiagram/ChainDiagram'
 import { ResultsPanel } from './components/ResultsPanel/ResultsPanel'
+import { MatchingNetworkPanel } from './components/MatchingNetwork/MatchingNetworkPanel'
 
 export default function App() {
   const chain = useSpectraStore((s) => s.chain)
@@ -65,6 +66,7 @@ export default function App() {
       {/* Right results panel */}
       <aside className="w-72 border-l border-gray-800 overflow-y-auto shrink-0">
         <ResultsPanel />
+        <MatchingNetworkPanel />
       </aside>
     </div>
   )
