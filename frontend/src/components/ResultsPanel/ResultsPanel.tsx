@@ -1,6 +1,10 @@
 import { useSpectraStore } from '../../store/useSpectraStore'
 import { StageTable } from './StageTable'
 import { SystemParamsForm } from './SystemParamsForm'
+import { ChainChart } from './ChainChart'
+import { NoiseBudget } from './NoiseBudget'
+import { LinkBudgetPanel } from './LinkBudgetPanel'
+import { PresetsPanel } from '../shared/PresetsPanel'
 
 interface MetricCardProps {
   label: string
@@ -21,9 +25,39 @@ function MetricCard({ label, value, unit, colorClass = 'text-white' }: MetricCar
   )
 }
 
+function exportToCsv(
+  stages: { stage_index: number; component_name: string; cumulative_gain_db: number; cumulative_nf_db: number; cumulative_iip3_dbm?: number | null }[],
+  summary: { cascaded_nf_db: number; total_gain_db: number; cascaded_iip3_dbm: number; sensitivity_dbm: number },
+) {
+  const rows = [
+    ['Stage', 'Component', 'Cum. Gain (dB)', 'Cum. NF (dB)', 'Cum. IIP3 (dBm)'],
+    ...stages.map((s) => [
+      s.stage_index + 1,
+      s.component_name,
+      s.cumulative_gain_db.toFixed(2),
+      s.cumulative_nf_db.toFixed(2),
+      s.cumulative_iip3_dbm != null ? s.cumulative_iip3_dbm.toFixed(2) : '',
+    ]),
+    [],
+    ['Cascaded NF (dB)', summary.cascaded_nf_db.toFixed(2)],
+    ['Total Gain (dB)', summary.total_gain_db.toFixed(2)],
+    ['Cascaded IIP3 (dBm)', summary.cascaded_iip3_dbm.toFixed(2)],
+    ['Sensitivity (dBm)', summary.sensitivity_dbm.toFixed(2)],
+  ]
+  const csv = rows.map((r) => r.join(',')).join('\n')
+  const blob = new Blob([csv], { type: 'text/csv' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'rf-chain.csv'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 export function ResultsPanel() {
   const cascadeResult = useSpectraStore((s) => s.cascadeResult)
   const calcError = useSpectraStore((s) => s.calcError)
+  const freqGhz = useSpectraStore((s) => s.systemParams.frequency_ghz)
   const r = cascadeResult
 
   return (
@@ -65,9 +99,30 @@ export function ResultsPanel() {
         />
       </div>
 
+      {r && r.per_stage.length > 1 && (
+        <div>
+          <p className="text-xs text-gray-500 mb-2">Gain &amp; NF along chain</p>
+          <ChainChart stages={r.per_stage} />
+        </div>
+      )}
+
+      {r && r.per_stage.length > 0 && (
+        <div className="border-t border-gray-800 pt-3">
+          <NoiseBudget stages={r.per_stage} totalNfDb={r.cascaded_nf_db} />
+        </div>
+      )}
+
       {r && r.per_stage.length > 0 && (
         <div>
-          <p className="text-xs text-gray-500 mb-2">Per-stage breakdown</p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs text-gray-500">Per-stage breakdown</p>
+            <button
+              onClick={() => exportToCsv(r.per_stage, r)}
+              className="text-[10px] px-2 py-0.5 bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white border border-gray-700 rounded transition-colors"
+            >
+              Export CSV
+            </button>
+          </div>
           <StageTable stages={r.per_stage} />
         </div>
       )}
@@ -83,6 +138,12 @@ export function ResultsPanel() {
           System Parameters
         </p>
         <SystemParamsForm />
+      </div>
+
+      <LinkBudgetPanel sensitivityDbm={r?.sensitivity_dbm ?? null} freqGhz={freqGhz} />
+
+      <div className="border-t border-gray-800 pt-3">
+        <PresetsPanel />
       </div>
     </div>
   )

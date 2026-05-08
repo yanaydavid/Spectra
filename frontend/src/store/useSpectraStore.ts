@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { CascadeResult, RFComponent, SystemParams } from '../types'
+import type { CascadeResult, Preset, RFComponent, SystemParams } from '../types'
 
 interface SpectraStore {
   // Component library (session-scoped, persisted)
@@ -13,6 +13,7 @@ interface SpectraStore {
   addToChain: (componentId: string, atIndex?: number) => void
   removeFromChain: (index: number) => void
   reorderChain: (fromIndex: number, toIndex: number) => void
+  clearChain: () => void
 
   // System parameters (persisted)
   systemParams: SystemParams
@@ -21,6 +22,12 @@ interface SpectraStore {
   // Cascade result (not persisted — recalculated on load)
   cascadeResult: CascadeResult | null
   setCascadeResult: (result: CascadeResult | null) => void
+
+  // Presets (persisted)
+  presets: Record<string, Preset>
+  savePreset: (name: string) => void
+  loadPreset: (name: string) => void
+  deletePreset: (name: string) => void
 
   // UI state (not persisted)
   isExtracting: boolean
@@ -79,8 +86,34 @@ export const useSpectraStore = create<SpectraStore>()(
           newChain.splice(toIndex, 0, moved)
           return { chain: newChain }
         }),
+      clearChain: () => set({ chain: [] }),
 
-      systemParams: { bandwidth_hz: 20_000_000, temperature_k: 290 },
+      presets: {},
+      savePreset: (name) =>
+        set((state) => ({
+          presets: {
+            ...state.presets,
+            [name]: {
+              name,
+              chain: [...state.chain],
+              components: { ...state.components },
+              savedAt: Date.now(),
+            },
+          },
+        })),
+      loadPreset: (name) =>
+        set((state) => {
+          const preset = state.presets[name]
+          if (!preset) return {}
+          return { chain: [...preset.chain], components: { ...preset.components } }
+        }),
+      deletePreset: (name) =>
+        set((state) => {
+          const { [name]: _removed, ...rest } = state.presets
+          return { presets: rest }
+        }),
+
+      systemParams: { bandwidth_hz: 20_000_000, temperature_k: 290, frequency_ghz: 2.4 },
       setSystemParams: (params) =>
         set((state) => ({
           systemParams: { ...state.systemParams, ...params },
@@ -102,6 +135,7 @@ export const useSpectraStore = create<SpectraStore>()(
         components: state.components,
         chain: state.chain,
         systemParams: state.systemParams,
+        presets: state.presets,
       }),
     },
   ),

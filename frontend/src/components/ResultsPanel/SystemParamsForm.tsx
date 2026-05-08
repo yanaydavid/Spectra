@@ -9,6 +9,20 @@ export function SystemParamsForm() {
   return (
     <div className="space-y-2">
       <div>
+        <label className="block text-xs text-gray-500 mb-1">Frequency (GHz)</label>
+        <input
+          type="number"
+          step="0.1"
+          min="0"
+          className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-sm text-gray-100 focus:outline-none focus:border-violet-500"
+          value={systemParams.frequency_ghz ?? 2.4}
+          onChange={(e) => {
+            const v = parseFloat(e.target.value)
+            if (!isNaN(v) && v > 0) setSystemParams({ frequency_ghz: v })
+          }}
+        />
+      </div>
+      <div>
         <label className="block text-xs text-gray-500 mb-1">Bandwidth (MHz)</label>
         <input
           type="number"

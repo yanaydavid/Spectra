@@ -19,6 +19,7 @@ const H_GAP = 80
 export function ChainDiagram() {
   const chain = useSpectraStore((s) => s.chain)
   const reorderChain = useSpectraStore((s) => s.reorderChain)
+  const clearChain = useSpectraStore((s) => s.clearChain)
 
   const nodes: Node[] = useMemo(
     () =>
@@ -77,19 +78,27 @@ export function ChainDiagram() {
   }
 
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      nodeTypes={NODE_TYPES}
-      onNodesChange={onNodesChange}
-      fitView
-      fitViewOptions={{ padding: 0.3 }}
-      minZoom={0.3}
-      maxZoom={2}
-      colorMode="dark"
-    >
-      <Background variant={BackgroundVariant.Dots} color="#1f2937" gap={20} />
-      <Controls />
-    </ReactFlow>
+    <div className="relative h-full">
+      <button
+        onClick={clearChain}
+        className="absolute top-2 right-2 z-10 px-2 py-1 text-xs bg-gray-800 hover:bg-red-800 text-gray-400 hover:text-white border border-gray-700 hover:border-red-600 rounded transition-colors"
+      >
+        Clear Chain
+      </button>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={NODE_TYPES}
+        onNodesChange={onNodesChange}
+        fitView
+        fitViewOptions={{ padding: 0.3 }}
+        minZoom={0.3}
+        maxZoom={2}
+        colorMode="dark"
+      >
+        <Background variant={BackgroundVariant.Dots} color="#1f2937" gap={20} />
+        <Controls />
+      </ReactFlow>
+    </div>
   )
 }

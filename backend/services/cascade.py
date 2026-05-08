@@ -46,7 +46,7 @@ def cascaded_gain(stages: list[RFComponent]) -> float:
 
 
 def per_stage_cumulative(stages: list[RFComponent]) -> list[PerStageResult]:
-    """Returns cumulative gain and NF at each stage."""
+    """Returns cumulative gain, NF, and IIP3 at each stage."""
     if not stages:
         raise ValueError("Chain must have at least one stage")
 
@@ -55,12 +55,25 @@ def per_stage_cumulative(stages: list[RFComponent]) -> list[PerStageResult]:
     cum_gain_db = stages[0].gain_db
     cumulative_gain_linear = db_to_linear(stages[0].gain_db)
 
+    # Cascaded IIP3 (input-referred) accumulated stage by stage
+    def _iip3_safe(stage: RFComponent) -> float | None:
+        try:
+            mw = dbm_to_mw(stage.iip3_dbm)
+            return mw if mw > 0 else None
+        except Exception:
+            return None
+
+    iip3_0 = _iip3_safe(stages[0])
+    inv_iip3 = (1.0 / iip3_0) if iip3_0 else None
+    cum_gain_for_iip3 = db_to_linear(stages[0].gain_db)  # gain accumulated BEFORE next stage
+
     results.append(PerStageResult(
         stage_index=0,
         component_id=stages[0].id,
         component_name=stages[0].name,
         cumulative_gain_db=cum_gain_db,
         cumulative_nf_db=linear_to_db(f_cascade),
+        cumulative_iip3_dbm=mw_to_dbm(1.0 / inv_iip3) if inv_iip3 else None,
     ))
 
     for i, stage in enumerate(stages[1:], start=1):
@@ -69,12 +82,21 @@ def per_stage_cumulative(stages: list[RFComponent]) -> list[PerStageResult]:
         cumulative_gain_linear *= db_to_linear(stage.gain_db)
         cum_gain_db += stage.gain_db
 
+        # Update cascaded IIP3
+        iip3_i = _iip3_safe(stage)
+        if inv_iip3 is not None and iip3_i is not None:
+            inv_iip3 += cum_gain_for_iip3 / iip3_i
+        else:
+            inv_iip3 = None
+        cum_gain_for_iip3 *= db_to_linear(stage.gain_db)
+
         results.append(PerStageResult(
             stage_index=i,
             component_id=stage.id,
             component_name=stage.name,
             cumulative_gain_db=cum_gain_db,
             cumulative_nf_db=linear_to_db(f_cascade),
+            cumulative_iip3_dbm=mw_to_dbm(1.0 / inv_iip3) if inv_iip3 else None,
         ))
 
     return results

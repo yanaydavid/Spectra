@@ -20,6 +20,7 @@ export interface RFComponent {
 export interface SystemParams {
   bandwidth_hz: number
   temperature_k: number
+  frequency_ghz: number
 }
 
 export interface PerStageResult {
@@ -28,6 +29,14 @@ export interface PerStageResult {
   component_name: string
   cumulative_gain_db: number
   cumulative_nf_db: number
+  cumulative_iip3_dbm?: number | null
+}
+
+export interface Preset {
+  name: string
+  chain: string[]
+  components: Record<string, RFComponent>
+  savedAt: number
 }
 
 export interface CascadeResult {

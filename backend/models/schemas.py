@@ -43,6 +43,7 @@ class PerStageResult(BaseModel):
     component_name: str
     cumulative_gain_db: float
     cumulative_nf_db: float
+    cumulative_iip3_dbm: Optional[float] = None
 
 
 class CascadeResult(BaseModel):
