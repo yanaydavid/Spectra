@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { CascadeResult, ChainCalculationRequest } from '../types'
+import { API } from './base'
 
 export interface CalcError {
   status: number
@@ -10,7 +11,7 @@ export async function calculateChain(
   request: ChainCalculationRequest,
 ): Promise<CascadeResult> {
   try {
-    const { data } = await axios.post<CascadeResult>('/api/calculate-chain', request, {
+    const { data } = await axios.post<CascadeResult>(`${API}/calculate-chain`, request, {
       timeout: 10_000,
     })
     return data

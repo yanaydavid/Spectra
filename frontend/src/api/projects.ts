@@ -1,6 +1,7 @@
 import type { ChainExport } from '../utils/chainIO'
+import { API } from './base'
 
-const BASE = 'http://localhost:8000/projects'
+const BASE = `${API}/projects`
 
 export interface ProjectMeta {
   name: string

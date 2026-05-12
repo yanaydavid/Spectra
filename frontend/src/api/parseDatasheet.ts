@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { ExtractedParams } from '../types'
+import { API } from './base'
 
 export interface ParseError {
   status: number
@@ -11,7 +12,7 @@ export async function parseDatasheet(file: File): Promise<ExtractedParams> {
   form.append('file', file)
 
   try {
-    const { data } = await axios.post<ExtractedParams>('/api/parse-datasheet', form, {
+    const { data } = await axios.post<ExtractedParams>(`${API}/parse-datasheet`, form, {
       headers: { 'Content-Type': 'multipart/form-data' },
       timeout: 60_000,
     })
