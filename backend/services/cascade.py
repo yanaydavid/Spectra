@@ -102,21 +102,27 @@ def per_stage_cumulative(stages: list[RFComponent]) -> list[PerStageResult]:
     return results
 
 
-def cascaded_iip3(stages: list[RFComponent]) -> float:
-    """Returns cascaded input IP3 in dBm."""
+def cascaded_iip3(stages: list[RFComponent]) -> float | None:
+    """Returns cascaded input IP3 in dBm, or None if no stage has IIP3 defined."""
     if not stages:
         raise ValueError("Chain must have at least one stage")
 
     inv_iip3 = 0.0
     cumulative_gain_linear = 1.0
+    has_any = False
 
     for stage in stages:
+        if stage.iip3_dbm is None:
+            cumulative_gain_linear *= db_to_linear(stage.gain_db)
+            continue
         iip3_mw = dbm_to_mw(stage.iip3_dbm)
-        if iip3_mw <= 0:
-            raise ValueError(f"IIP3 must be > 0 mW (got {stage.iip3_dbm} dBm for {stage.name})")
-        inv_iip3 += cumulative_gain_linear / iip3_mw
+        if iip3_mw > 0:
+            inv_iip3 += cumulative_gain_linear / iip3_mw
+            has_any = True
         cumulative_gain_linear *= db_to_linear(stage.gain_db)
 
+    if not has_any or inv_iip3 == 0:
+        return None
     return mw_to_dbm(1.0 / inv_iip3)
 
 

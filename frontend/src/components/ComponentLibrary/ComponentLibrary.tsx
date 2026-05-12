@@ -1,55 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { useSpectraStore } from '../../store/useSpectraStore'
 import { ParameterBadge } from '../shared/ParameterBadge'
-import { ManualEntryForm } from './ManualEntryForm'
+import { MyLibrary } from './MyLibrary'
 import { COMPONENT_CATALOG } from '../../data/componentCatalog'
 import type { RFComponent } from '../../types'
 
 const TYPE_ICON: Record<string, string> = {
-  LNA: '⚡', Amplifier: '▲', Attenuator: '▼', Mixer: '×', Filter: '≋', Generic: '□',
+  LNA: '⚡', Amplifier: '▲', PA: '🔊', VGA: '↕', Limiter: '⌇',
+  BPF: '≋', LPF: '⊏', HPF: '⊐', BSF: '⊓', Diplexer: '⑂',
+  Attenuator: '▼', Splitter: '⑃', Coupler: '⊕', Circulator: '↻', Isolator: '⇒',
+  Mixer: '×', Generic: '□',
 }
 
 type Tab = 'library' | 'catalog'
-
-// ─── My Library tab ───────────────────────────────────────────────────────────
-function MyLibrary() {
-  const components = useSpectraStore((s) => s.components)
-  const addToChain = useSpectraStore((s) => s.addToChain)
-
-  const libraryComponents = Object.values(components).filter((c) => !c.id.includes('__'))
-
-  if (libraryComponents.length === 0) {
-    return (
-      <p className="px-4 py-3 text-xs text-gray-600">
-        Upload a datasheet or add manually below
-      </p>
-    )
-  }
-
-  return (
-    <ul className="px-2 space-y-1 pb-2">
-      {libraryComponents.map((comp) => (
-        <li key={comp.id} className="flex items-center gap-2 rounded p-2 hover:bg-gray-800 group">
-          <span className="text-base shrink-0">{TYPE_ICON[comp.type] ?? '□'}</span>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm text-gray-200 truncate">{comp.name}</p>
-            <div className="flex gap-2 mt-0.5">
-              <ParameterBadge label="G" value={comp.gain_db} />
-              <ParameterBadge label="NF" value={comp.nf_db} positiveIsGood={false} />
-            </div>
-          </div>
-          <button
-            onClick={() => addToChain(comp.id)}
-            className="shrink-0 text-xs text-violet-400 hover:text-violet-300 opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            + Chain
-          </button>
-        </li>
-      ))}
-    </ul>
-  )
-}
 
 // ─── Catalog tab ──────────────────────────────────────────────────────────────
 function CatalogBrowser() {
@@ -149,6 +113,15 @@ function CatalogBrowser() {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export function ComponentLibrary() {
   const [tab, setTab] = useState<Tab>('catalog')
+  const components       = useSpectraStore((s) => s.components)
+  const libraryFocusedAt = useSpectraStore((s) => s.libraryFocusedAt)
+
+  // Auto-switch to My Library when a component is saved from the upload panel
+  useEffect(() => {
+    if (libraryFocusedAt > 0) setTab('library')
+  }, [libraryFocusedAt])
+
+  const libraryCount = Object.values(components).filter((c) => !c.id.includes('__')).length
 
   return (
     <div>
@@ -173,13 +146,16 @@ export function ComponentLibrary() {
             }`}
           >
             My Library
+            {libraryCount > 0 && (
+              <span className="ml-1 bg-violet-700/70 text-violet-200 rounded px-1 text-[8px] font-mono">
+                {libraryCount}
+              </span>
+            )}
           </button>
         </div>
       </div>
 
       {tab === 'catalog' ? <CatalogBrowser /> : <MyLibrary />}
-
-      <ManualEntryForm />
     </div>
   )
 }

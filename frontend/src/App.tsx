@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { useSpectraStore } from './store/useSpectraStore'
+import { useSpectraStore, deriveChainOrder } from './store/useSpectraStore'
 import { calculateChain } from './api/calculateChain'
 import { UploadPanel } from './components/UploadPanel/UploadPanel'
 import { ComponentLibrary } from './components/ComponentLibrary/ComponentLibrary'
@@ -10,13 +10,19 @@ import { StabilityPanel } from './components/Stability/StabilityPanel'
 import { MonteCarloPanel } from './components/MonteCarlo/MonteCarloPanel'
 import { FrequencySweepPanel } from './components/FrequencySweep/FrequencySweepPanel'
 import { ComparisonPanel } from './components/ChainComparison/ComparisonPanel'
+import { S2PViewer } from './components/S2PViewer/S2PViewer'
+import { DesignAdvisorPanel } from './components/DesignAdvisor/DesignAdvisorPanel'
+import { AutoBuilderPanel } from './components/AutoBuilder/AutoBuilderPanel'
+import { SensitivityPanel } from './components/Sensitivity/SensitivityPanel'
+import { AIAssistantPanel } from './components/AIAssistant/AIAssistantPanel'
 
 export default function App() {
-  const chain = useSpectraStore((s) => s.chain)
-  const components = useSpectraStore((s) => s.components)
+  const chain        = useSpectraStore((s) => s.chain)
+  const rfEdges      = useSpectraStore((s) => s.rfEdges)
+  const components   = useSpectraStore((s) => s.components)
   const systemParams = useSpectraStore((s) => s.systemParams)
   const setCascadeResult = useSpectraStore((s) => s.setCascadeResult)
-  const setCalcError = useSpectraStore((s) => s.setCalcError)
+  const setCalcError     = useSpectraStore((s) => s.setCalcError)
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -30,7 +36,9 @@ export default function App() {
     if (debounceRef.current) clearTimeout(debounceRef.current)
 
     debounceRef.current = setTimeout(async () => {
-      const stages = chain.map((id) => components[id]).filter(Boolean)
+      // Use graph-derived order when connections exist
+      const orderedIds = deriveChainOrder(chain, rfEdges)
+      const stages = orderedIds.map((id) => components[id]).filter(Boolean)
       if (stages.length === 0) return
       try {
         const result = await calculateChain({ stages, system_params: systemParams })
@@ -44,7 +52,7 @@ export default function App() {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
-  }, [chain, components, systemParams, setCascadeResult])
+  }, [chain, rfEdges, components, systemParams, setCascadeResult])
 
   return (
     <div className="flex h-screen bg-gray-950 text-gray-100 overflow-hidden">
@@ -69,12 +77,17 @@ export default function App() {
 
       {/* Right results panel */}
       <aside className="w-72 border-l border-gray-800 overflow-y-auto shrink-0">
+        <AIAssistantPanel />
         <ResultsPanel />
+        <DesignAdvisorPanel />
+        <AutoBuilderPanel />
+        <SensitivityPanel />
         <MatchingNetworkPanel />
         <StabilityPanel />
         <MonteCarloPanel />
         <FrequencySweepPanel />
         <ComparisonPanel />
+        <S2PViewer />
       </aside>
     </div>
   )

@@ -1,4 +1,5 @@
 import type { RFComponent } from '../types'
+import { interpolateGain, type S2PFile } from './parseS2P'
 
 export interface FreqRolloff {
   /** dB/GHz — positive = gain falls with freq, negative = gain rises */
@@ -35,6 +36,7 @@ function mwToDbm(mw: number)    { return 10 * Math.log10(mw) }
 function friisAt(
   stages: RFComponent[],
   rolloffs: Record<string, FreqRolloff>,
+  s2pMap: Record<string, S2PFile>,
   freq_ghz: number,
   center_ghz: number,
   bandwidth_hz: number,
@@ -43,20 +45,34 @@ function friisAt(
   const df = freq_ghz - center_ghz
 
   const perturbed = stages.map((s) => {
+    const s2p = s2pMap[s.id]
+    if (s2p) {
+      // Use real S2P data for gain; keep nominal NF/IIP3 with rolloff
+      const r = rolloffs[s.id] ?? DEFAULT_ROLLOFFS[s.type] ?? DEFAULT_ROLLOFFS.Generic
+      const gain_db = interpolateGain(s2p, freq_ghz) ?? s.gain_db
+      return {
+        ...s,
+        gain_db,
+        nf_db:    Math.max(0, s.nf_db  + r.nf_slope   * Math.abs(df)),
+        iip3_dbm: (s.iip3_dbm ?? 0) - r.iip3_slope * Math.abs(df),
+      }
+    }
     const r = rolloffs[s.id] ?? DEFAULT_ROLLOFFS[s.type] ?? DEFAULT_ROLLOFFS.Generic
     return {
       ...s,
       gain_db:  s.gain_db  - r.gain_slope  * Math.abs(df),
       nf_db:    Math.max(0, s.nf_db  + r.nf_slope   * Math.abs(df)),
-      iip3_dbm: s.iip3_dbm - r.iip3_slope * Math.abs(df),
+      iip3_dbm: (s.iip3_dbm ?? 0) - r.iip3_slope * Math.abs(df),
     }
   })
 
   // Friis cascade
+  const safeIip3 = (s: typeof perturbed[0]) => dbmToMw(s.iip3_dbm ?? 30)
+
   let fCascade    = dbToLinear(Math.max(perturbed[0].nf_db, 0))
   let gainLin     = dbToLinear(perturbed[0].gain_db)
   let cumGainDb   = perturbed[0].gain_db
-  let invIip3     = 1 / dbmToMw(perturbed[0].iip3_dbm)
+  let invIip3     = 1 / safeIip3(perturbed[0])
   let gainForIip3 = gainLin
 
   for (let i = 1; i < perturbed.length; i++) {
@@ -64,7 +80,7 @@ function friisAt(
     fCascade    += (dbToLinear(Math.max(s.nf_db, 0)) - 1) / gainLin
     gainLin     *= dbToLinear(s.gain_db)
     cumGainDb   += s.gain_db
-    invIip3     += gainForIip3 / dbmToMw(s.iip3_dbm)
+    invIip3     += gainForIip3 / safeIip3(s)
     gainForIip3 *= dbToLinear(s.gain_db)
   }
 
@@ -90,6 +106,7 @@ export function runSweep(
   center_ghz: number,
   bandwidth_hz: number,
   temperature_k: number,
+  s2pMap: Record<string, S2PFile> = {},
 ): SweepPoint[] {
   const stages = chain.map((id) => components[id]).filter(Boolean)
   if (stages.length === 0) return []
@@ -99,7 +116,7 @@ export function runSweep(
 
   for (let i = 0; i < n_points; i++) {
     const f = parseFloat((f_start + i * step).toFixed(4))
-    points.push(friisAt(stages, rolloffs, f, center_ghz, bandwidth_hz, temperature_k))
+    points.push(friisAt(stages, rolloffs, s2pMap, f, center_ghz, bandwidth_hz, temperature_k))
   }
 
   return points

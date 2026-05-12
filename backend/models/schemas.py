@@ -7,12 +7,50 @@ from pydantic import BaseModel, ConfigDict
 
 
 class ComponentType(str, Enum):
-    LNA = "LNA"
-    AMPLIFIER = "Amplifier"
-    ATTENUATOR = "Attenuator"
-    MIXER = "Mixer"
-    FILTER = "Filter"
-    GENERIC = "Generic"
+    # Amplifiers
+    LNA         = "LNA"
+    AMPLIFIER   = "Amplifier"
+    PA          = "PA"
+    VGA         = "VGA"
+    LIMITER     = "Limiter"
+    # Filters
+    BPF         = "BPF"
+    LPF         = "LPF"
+    HPF         = "HPF"
+    BSF         = "BSF"
+    DIPLEXER    = "Diplexer"
+    # Attenuators & passive
+    ATTENUATOR  = "Attenuator"
+    SPLITTER    = "Splitter"
+    COUPLER     = "Coupler"
+    CIRCULATOR  = "Circulator"
+    ISOLATOR    = "Isolator"
+    TERMINATION = "Termination"
+    # Phase
+    PHASESHIFTER = "PhaseShifter"
+    HYBRID90    = "Hybrid90"
+    HYBRID180   = "Hybrid180"
+    BALUN       = "Balun"
+    # Frequency conversion
+    MIXER       = "Mixer"
+    UPCONVERTER = "UpConverter"
+    MULTIPLIER  = "Multiplier"
+    DIVIDER     = "Divider"
+    # Oscillators
+    VCO         = "VCO"
+    VCXO        = "VCXO"
+    PLL         = "PLL"
+    CRYSTALOSC  = "CrystalOsc"
+    # Switches
+    SWITCH      = "Switch"
+    TRSWITCH    = "TRSwitch"
+    # Digital
+    ADC         = "ADC"
+    DAC         = "DAC"
+    # Antenna
+    ANTENNA     = "Antenna"
+    # Generic
+    GENERIC     = "Generic"
 
 
 class RFComponent(BaseModel):
@@ -23,8 +61,8 @@ class RFComponent(BaseModel):
     type: ComponentType
     gain_db: float
     nf_db: float
-    iip3_dbm: float
-    p1db_dbm: float
+    iip3_dbm: Optional[float] = None
+    p1db_dbm: Optional[float] = None
 
 
 class SystemParams(BaseModel):
@@ -49,7 +87,7 @@ class PerStageResult(BaseModel):
 class CascadeResult(BaseModel):
     total_gain_db: float
     cascaded_nf_db: float
-    cascaded_iip3_dbm: float
+    cascaded_iip3_dbm: Optional[float] = None
     sensitivity_dbm: float
     per_stage: list[PerStageResult]
 

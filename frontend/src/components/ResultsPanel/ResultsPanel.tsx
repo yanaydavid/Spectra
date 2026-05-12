@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useSpectraStore } from '../../store/useSpectraStore'
 import { StageTable } from './StageTable'
 import { SystemParamsForm } from './SystemParamsForm'
@@ -5,8 +6,10 @@ import { ChainChart } from './ChainChart'
 import { NoiseBudget } from './NoiseBudget'
 import { LinkBudgetPanel } from './LinkBudgetPanel'
 import { PresetsPanel } from '../shared/PresetsPanel'
+import { ProjectsPanel } from '../shared/ProjectsPanel'
 import { generateReport } from '../../utils/generateReport'
 import { DynamicRangePanel } from './DynamicRangePanel'
+import { exportChainJson, importChainFromFile, ImportError } from '../../utils/chainIO'
 
 interface MetricCardProps {
   label: string
@@ -57,29 +60,88 @@ function exportToCsv(
 }
 
 export function ResultsPanel() {
-  const cascadeResult = useSpectraStore((s) => s.cascadeResult)
-  const calcError = useSpectraStore((s) => s.calcError)
-  const freqGhz = useSpectraStore((s) => s.systemParams.frequency_ghz)
-  const systemParams = useSpectraStore((s) => s.systemParams)
-  const chain = useSpectraStore((s) => s.chain)
-  const components = useSpectraStore((s) => s.components)
+  const cascadeResult   = useSpectraStore((s) => s.cascadeResult)
+  const calcError       = useSpectraStore((s) => s.calcError)
+  const freqGhz         = useSpectraStore((s) => s.systemParams.frequency_ghz)
+  const systemParams    = useSpectraStore((s) => s.systemParams)
+  const chain           = useSpectraStore((s) => s.chain)
+  const components      = useSpectraStore((s) => s.components)
+  const addComponent    = useSpectraStore((s) => s.addComponent)
+  const clearChain      = useSpectraStore((s) => s.clearChain)
+  const addToChain      = useSpectraStore((s) => s.addToChain)
+  const setSystemParams = useSpectraStore((s) => s.setSystemParams)
+
+  const [importError, setImportError] = useState<string | null>(null)
+  const [importOk, setImportOk]       = useState(false)
   const r = cascadeResult
+
+  async function handleImport() {
+    setImportError(null)
+    setImportOk(false)
+    try {
+      const data = await importChainFromFile()
+      // Load: clear chain, restore components + chain entries, then set system params
+      clearChain()
+      // Add all components from the file
+      for (const comp of Object.values(data.components)) {
+        addComponent(comp)
+      }
+      // Restore chain order (chain entries are already in components)
+      for (const id of data.chain) {
+        if (data.components[id]) addToChain(id)
+      }
+      if (data.systemParams) setSystemParams(data.systemParams)
+      setImportOk(true)
+      setTimeout(() => setImportOk(false), 3000)
+    } catch (err) {
+      if (err instanceof ImportError && err.message !== 'Cancelled.') {
+        setImportError(err.message)
+        setTimeout(() => setImportError(null), 5000)
+      }
+    }
+  }
 
   return (
     <div className="p-4 space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
           Cascade Results
         </p>
-        {r && chain.length > 0 && (
+        <div className="flex items-center gap-1.5">
+          {/* Import JSON */}
           <button
-            onClick={() => generateReport(chain, components, systemParams, r)}
-            className="text-[10px] px-2 py-1 bg-violet-700 hover:bg-violet-600 text-white rounded transition-colors flex items-center gap-1"
+            onClick={handleImport}
+            title="Import chain from JSON file"
+            className="text-[10px] px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white border border-gray-700 rounded transition-colors flex items-center gap-1"
           >
-            <span>↓</span> Design Report
+            {importOk ? <span className="text-emerald-400">✓ Loaded</span> : <><span>↑</span> Import</>}
           </button>
-        )}
+          {/* Export JSON */}
+          {chain.length > 0 && (
+            <button
+              onClick={() => exportChainJson(chain, components, systemParams)}
+              title="Export chain to JSON file"
+              className="text-[10px] px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white border border-gray-700 rounded transition-colors flex items-center gap-1"
+            >
+              <span>↓</span> Export
+            </button>
+          )}
+          {/* Design Report */}
+          {r && chain.length > 0 && (
+            <button
+              onClick={() => generateReport(chain, components, systemParams, r)}
+              className="text-[10px] px-2 py-1 bg-violet-700 hover:bg-violet-600 text-white rounded transition-colors flex items-center gap-1"
+            >
+              <span>↓</span> Report
+            </button>
+          )}
+        </div>
       </div>
+      {importError && (
+        <div className="text-[10px] text-red-400 bg-red-400/10 rounded px-2 py-1.5 flex items-center gap-1">
+          <span>⚠</span><span>{importError}</span>
+        </div>
+      )}
 
       {calcError && (
         <div className="flex items-start gap-2 text-xs text-red-400 bg-red-400/10 rounded p-2">
@@ -167,6 +229,8 @@ export function ResultsPanel() {
       <div className="border-t border-gray-800 pt-3">
         <PresetsPanel />
       </div>
+
+      <ProjectsPanel />
     </div>
   )
 }

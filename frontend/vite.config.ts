@@ -10,6 +10,13 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8000',
         rewrite: (path) => path.replace(/^\/api/, ''),
+        // Required for SSE / streaming responses
+        configure: (proxy) => {
+          proxy.on('proxyRes', (proxyRes) => {
+            proxyRes.headers['cache-control'] = 'no-cache'
+            proxyRes.headers['x-accel-buffering'] = 'no'
+          })
+        },
       },
     },
   },

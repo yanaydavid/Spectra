@@ -57,6 +57,7 @@ export function FrequencySweepPanel() {
   const chain      = useSpectraStore((s) => s.chain)
   const components = useSpectraStore((s) => s.components)
   const systemParams = useSpectraStore((s) => s.systemParams)
+  const s2pData    = useSpectraStore((s) => s.s2pData)
 
   const center = systemParams.frequency_ghz ?? 2.4
 
@@ -93,8 +94,9 @@ export function FrequencySweepPanel() {
       center,
       systemParams.bandwidth_hz,
       systemParams.temperature_k,
+      s2pData,
     )
-  }, [chain, components, allRolloffs, fStart, fStop, nPts, center, systemParams])
+  }, [chain, components, allRolloffs, fStart, fStop, nPts, center, systemParams, s2pData])
 
   function toggleMetric(m: Metric) {
     setVisibleMetrics((prev) => {
@@ -222,13 +224,20 @@ export function FrequencySweepPanel() {
                 </p>
                 <div className="space-y-2">
                   {stages.map((s) => (
-                    <RolloffRow
-                      key={s.id}
-                      id={s.id}
-                      name={s.name}
-                      rolloff={allRolloffs[s.id] ?? DEFAULT_ROLLOFFS.Generic}
-                      onChange={(r) => setRolloffs((prev) => ({ ...prev, [s.id]: r }))}
-                    />
+                    <div key={s.id}>
+                      {s2pData[s.id] && (
+                        <p className="text-[9px] text-violet-400 mb-0.5 flex items-center gap-1">
+                          <span>S2P ✓</span>
+                          <span className="text-gray-600">— gain from measured data; NF/IIP3 rolloff still applies</span>
+                        </p>
+                      )}
+                      <RolloffRow
+                        id={s.id}
+                        name={s.name}
+                        rolloff={allRolloffs[s.id] ?? DEFAULT_ROLLOFFS.Generic}
+                        onChange={(r) => setRolloffs((prev) => ({ ...prev, [s.id]: r }))}
+                      />
+                    </div>
                   ))}
                 </div>
                 <p className="text-[9px] text-gray-700 mt-2 leading-relaxed">
