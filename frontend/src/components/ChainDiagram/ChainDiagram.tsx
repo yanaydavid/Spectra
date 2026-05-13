@@ -10,7 +10,6 @@ import {
   type NodeChange,
   type EdgeChange,
   type Connection,
-  type NodeDragHandler,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useSpectraStore } from '../../store/useSpectraStore'
@@ -74,8 +73,8 @@ export function ChainDiagram() {
   )
 
   // ── Drag-stop: save free position ─────────────────────────────────────────
-  const onNodeDragStop: NodeDragHandler = useCallback(
-    (_event, node) => {
+  const onNodeDragStop = useCallback(
+    (_event: React.MouseEvent, node: Node) => {
       updateNodePosition(node.id, node.position)
     },
     [updateNodePosition],

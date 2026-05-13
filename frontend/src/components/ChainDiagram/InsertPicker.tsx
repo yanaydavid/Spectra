@@ -14,7 +14,7 @@ import type { ComponentType, RFComponent } from '../../types'
 const TYPE_ICON: Record<string, string> = {
   LNA: '⚡', Amplifier: '▲', Attenuator: '▼', Mixer: '×', Filter: '≋', Generic: '□',
 }
-const COMPONENT_TYPES: ComponentType[] = ['LNA', 'Amplifier', 'Attenuator', 'Mixer', 'Filter', 'Generic']
+const COMPONENT_TYPES: ComponentType[] = ['LNA', 'Amplifier', 'Attenuator', 'Mixer', 'BPF', 'Generic']
 
 interface Props {
   insertAtIndex: number          // insert BEFORE this index (shift everything right)
@@ -61,7 +61,7 @@ export function InsertPicker({ insertAtIndex, screenX, screenY, onClose }: Props
     const id = uuidv4()
     const blank: RFComponent = {
       id, name: `New ${type}`, type,
-      gain_db: type === 'Attenuator' ? -3 : type === 'Filter' ? -2 : 15,
+      gain_db: type === 'Attenuator' ? -3 : type === 'BPF' ? -2 : 15,
       nf_db: type === 'LNA' ? 2 : 3,
       iip3_dbm: null, p1db_dbm: null, source: 'manual',
     }

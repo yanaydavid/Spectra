@@ -101,7 +101,7 @@ export function autoDesign(targets: DesignTargets): CandidateChain[] {
     sec.components.map((c, ci) => ({
       ...c,
       id:     `ab_${si}_${ci}`,
-      source: 'catalog' as const,
+      source: 'manual' as const,
     }))
   )
 

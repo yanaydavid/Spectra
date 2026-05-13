@@ -29,13 +29,13 @@ export const COMPONENT_CATALOG: CatalogSection[] = [
     ],
   },
   {
-    type: 'Filter',
+    type: 'BPF',
     components: [
-      { name: 'BPF 900 MHz',   type: 'Filter', gain_db: -2.0, nf_db: 2.0,  iip3_dbm: 50, p1db_dbm: 40 },
-      { name: 'BPF 1.575 GHz', type: 'Filter', gain_db: -1.5, nf_db: 1.5,  iip3_dbm: 50, p1db_dbm: 40 },
-      { name: 'BPF 2.4 GHz',   type: 'Filter', gain_db: -2.0, nf_db: 2.0,  iip3_dbm: 50, p1db_dbm: 40 },
-      { name: 'SAW 433 MHz',   type: 'Filter', gain_db: -3.0, nf_db: 3.0,  iip3_dbm: 40, p1db_dbm: 30 },
-      { name: 'SAW 915 MHz',   type: 'Filter', gain_db: -2.5, nf_db: 2.5,  iip3_dbm: 40, p1db_dbm: 30 },
+      { name: 'BPF 900 MHz',   type: 'BPF', gain_db: -2.0, nf_db: 2.0,  iip3_dbm: 50, p1db_dbm: 40 },
+      { name: 'BPF 1.575 GHz', type: 'BPF', gain_db: -1.5, nf_db: 1.5,  iip3_dbm: 50, p1db_dbm: 40 },
+      { name: 'BPF 2.4 GHz',   type: 'BPF', gain_db: -2.0, nf_db: 2.0,  iip3_dbm: 50, p1db_dbm: 40 },
+      { name: 'SAW 433 MHz',   type: 'BPF', gain_db: -3.0, nf_db: 3.0,  iip3_dbm: 40, p1db_dbm: 30 },
+      { name: 'SAW 915 MHz',   type: 'BPF', gain_db: -2.5, nf_db: 2.5,  iip3_dbm: 40, p1db_dbm: 30 },
     ],
   },
   {

@@ -122,10 +122,10 @@ function S2PChart({ file, mode, freqGhz }: { file: S2PFile; mode: PlotMode; freq
           <Tooltip
             contentStyle={{ background: '#111827', border: '1px solid #374151', fontSize: 10, borderRadius: 6 }}
             labelFormatter={(v) => `${Number(v).toFixed(3)} GHz`}
-            formatter={(val: number, name: string) => {
+            formatter={((val: unknown, name: string) => {
               const l = lines.find((x) => x.key === name)
               return [`${Number(val).toFixed(2)} dB`, l?.label ?? name]
-            }}
+            }) as never}
           />
           <Legend wrapperStyle={{ fontSize: 9, paddingTop: 4 }} />
           <ReferenceLine

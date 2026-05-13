@@ -36,7 +36,7 @@ function friis(stages: RFComponent[]): { nf: number; gain: number; iip3: number 
   let fCascade = dbToLinear(Math.max(stages[0].nf_db, 0))
   let gainLin   = dbToLinear(stages[0].gain_db)
   let cumGainDb = stages[0].gain_db
-  let invIip3   = 1 / dbmToMw(stages[0].iip3_dbm)
+  let invIip3   = 1 / dbmToMw(stages[0].iip3_dbm ?? 30)
   let gainForIip3 = dbToLinear(stages[0].gain_db)
 
   for (let i = 1; i < stages.length; i++) {
@@ -44,7 +44,7 @@ function friis(stages: RFComponent[]): { nf: number; gain: number; iip3: number 
     fCascade   += (dbToLinear(Math.max(s.nf_db, 0)) - 1) / gainLin
     gainLin    *= dbToLinear(s.gain_db)
     cumGainDb  += s.gain_db
-    invIip3    += gainForIip3 / dbmToMw(s.iip3_dbm)
+    invIip3    += gainForIip3 / dbmToMw(s.iip3_dbm ?? 30)
     gainForIip3 *= dbToLinear(s.gain_db)
   }
 
@@ -72,7 +72,7 @@ export function runMonteCarlo(
       ...s,
       gain_db: s.gain_db + uniform(params.gain_tol_db),
       nf_db:   Math.max(0, s.nf_db + uniform(params.nf_tol_db)),
-      iip3_dbm: s.iip3_dbm + uniform(params.iip3_tol_db),
+      iip3_dbm: (s.iip3_dbm ?? 30) + uniform(params.iip3_tol_db),
     }))
     const r = friis(perturbed)
     nfs.push(r.nf)

@@ -95,7 +95,7 @@ export function ComparisonPanel() {
       .filter(Boolean)
       .map((c: RFComponent) => ({
         name: c.name, type: c.type,
-        gain_db: c.gain_db, nf_db: c.nf_db, iip3_dbm: c.iip3_dbm,
+        gain_db: c.gain_db, nf_db: c.nf_db, iip3_dbm: c.iip3_dbm ?? 0,
       }))
 
     setSnapshots((prev) => {

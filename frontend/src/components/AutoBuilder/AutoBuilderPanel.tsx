@@ -190,7 +190,7 @@ export function AutoBuilderPanel() {
     for (const comp of candidate.components) {
       // Register with a fresh ID so it doesn't conflict
       const freshId = `autobuilt_${comp.name.replace(/\s+/g, '_')}_${Date.now()}_${Math.random().toString(36).slice(2)}`
-      const registered = { ...comp, id: freshId, source: 'catalog' as const }
+      const registered = { ...comp, id: freshId, source: 'manual' as const }
       addComponent(registered)
       addToChain(freshId)
     }

@@ -20,7 +20,7 @@ export function InsertEdge({
   data,
 }: EdgeProps) {
   const [edgePath, labelX, labelY] = getStraightPath({ sourceX, sourceY, targetX, targetY })
-  const { insertAfterIndex, onInsert } = (data ?? {}) as InsertEdgeData
+  const { insertAfterIndex, onInsert } = (data ?? {}) as unknown as InsertEdgeData
 
   return (
     <>

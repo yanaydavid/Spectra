@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, type ReactElement } from 'react'
 import { Handle, Position } from '@xyflow/react'
 import { useSpectraStore } from '../../store/useSpectraStore'
 import { parseS2P } from '../../utils/parseS2P'
@@ -36,7 +36,7 @@ export const SVG_CY = 22          // px from top of SVG
 export const SVG_PADDING_TOP = 4  // paddingTop on the flex container
 
 function SchematicSymbol({ type }: { type: string }) {
-  const map: Partial<Record<string, JSX.Element>> = {
+  const map: Partial<Record<string, ReactElement>> = {
     LNA: (
       <svg viewBox="0 0 64 44" fill="none">
         <line x1="0"  y1="22" x2="10" y2="22" stroke={S} strokeWidth="2"/>

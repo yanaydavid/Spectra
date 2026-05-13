@@ -13,7 +13,7 @@ import type { RFComponent } from '../../types'
 const EXAMPLE_COMPONENTS: RFComponent[] = [
   { id: 'ex-lna',  name: 'Input LNA',  type: 'LNA',       gain_db: 18,  nf_db: 1.2, iip3_dbm: -5,  p1db_dbm: -15 },
   { id: 'ex-amp',  name: 'Driver Amp', type: 'Amplifier', gain_db: 14,  nf_db: 3.5, iip3_dbm: 10,  p1db_dbm: 0   },
-  { id: 'ex-filt', name: 'IF Filter',  type: 'Filter',    gain_db: -3,  nf_db: 3.0, iip3_dbm: 20,  p1db_dbm: 10  },
+  { id: 'ex-filt', name: 'IF Filter',  type: 'BPF',    gain_db: -3,  nf_db: 3.0, iip3_dbm: 20,  p1db_dbm: 10  },
   { id: 'ex-amp2', name: 'Output Amp', type: 'Amplifier', gain_db: 20,  nf_db: 4.0, iip3_dbm: 15,  p1db_dbm: 5   },
 ]
 

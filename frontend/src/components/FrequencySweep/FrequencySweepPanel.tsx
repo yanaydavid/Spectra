@@ -187,10 +187,10 @@ export function FrequencySweepPanel() {
                       <Tooltip
                         contentStyle={{ background: '#111827', border: '1px solid #374151', fontSize: 10, borderRadius: 6 }}
                         labelFormatter={(v) => `${Number(v).toFixed(2)} GHz`}
-                        formatter={(val: number, name: string) => {
+                        formatter={((val: unknown, name: string) => {
                           const m = METRICS.find((x) => x.key === name)
-                          return [`${val.toFixed(2)} ${m?.unit ?? ''}`, m?.label ?? name]
-                        }}
+                          return [`${Number(val).toFixed(2)} ${m?.unit ?? ''}`, m?.label ?? name]
+                        }) as never}
                       />
                       <Legend wrapperStyle={{ fontSize: 9, paddingTop: 4 }} />
                       {/* Center frequency reference line */}

@@ -90,7 +90,7 @@ function CatalogBrowser() {
               <div className="flex gap-2 mt-0.5 flex-wrap">
                 <ParameterBadge label="G" value={comp.gain_db} />
                 <ParameterBadge label="NF" value={comp.nf_db} positiveIsGood={false} />
-                <ParameterBadge label="IIP3" value={comp.iip3_dbm} unit="dBm" />
+                <ParameterBadge label="IIP3" value={comp.iip3_dbm ?? null} unit="dBm" />
               </div>
             </div>
             <button

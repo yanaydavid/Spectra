@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { useSpectraStore } from '../../store/useSpectraStore'
 import type { ComponentType, RFComponent } from '../../types'
 
-const COMPONENT_TYPES: ComponentType[] = ['LNA', 'Amplifier', 'Attenuator', 'Mixer', 'Filter', 'Generic']
+const COMPONENT_TYPES: ComponentType[] = ['LNA', 'Amplifier', 'Attenuator', 'Mixer', 'BPF', 'Generic']
 
 const DEFAULTS = { name: '', type: 'Generic' as ComponentType, gain_db: '', nf_db: '', iip3_dbm: '', p1db_dbm: '' }
 

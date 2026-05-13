@@ -111,7 +111,7 @@ export function NoiseBudget({ stages, totalNfDb }: Props) {
               width={64}
             />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: '#1f2937' }} />
-            <Bar dataKey="pct" radius={[0, 3, 3, 0]} label={{ position: 'right', fontSize: 9, fill: '#6b7280', formatter: (v: number) => `${v}%` }}>
+            <Bar dataKey="pct" radius={[0, 3, 3, 0]} label={{ position: 'right', fontSize: 9, fill: '#6b7280', formatter: (v: unknown) => `${v}%` }}>
               {budget.map((entry, index) => (
                 <Cell key={index} fill={barColor(entry.pct, maxPct)} />
               ))}

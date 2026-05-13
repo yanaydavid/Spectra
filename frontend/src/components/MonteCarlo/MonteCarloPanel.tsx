@@ -168,9 +168,9 @@ export function MonteCarloPanel() {
                         <YAxis tick={{ fill: '#6b7280', fontSize: 8 }} tickLine={false} axisLine={false} />
                         <Tooltip
                           contentStyle={{ background: '#111827', border: '1px solid #374151', fontSize: 10 }}
-                          formatter={(v: number, _: string, props: { payload: { x: number } }) =>
+                          formatter={((v: unknown, _: string, props: { payload: { x: number } }) =>
                             [`${v} samples`, `${props.payload.x.toFixed(2)} ${meta.unit}`]
-                          }
+                          ) as never}
                           labelFormatter={() => ''}
                         />
                         {nominal !== null && (
